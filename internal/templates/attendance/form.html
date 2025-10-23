@@ -1,0 +1,80 @@
+{{define "content"}}
+<div class="bg-white rounded-lg shadow-md p-6 max-w-2xl">
+    <h2 class="text-2xl font-semibold mb-4">
+        {{if .IsNew}}Add New Attendance{{else}}Edit Attendance{{end}}
+    </h2>
+
+    <form method="post" action="/attendance" class="space-y-4">
+        <div>
+            <label for="date" class="block text-sm font-medium text-gray-700">Date</label>
+            <input type="date" id="date" name="date" required
+                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+        </div>
+
+        <div>
+            <label for="work_location" class="block text-sm font-medium text-gray-700">Work Location</label>
+            <select id="work_location" name="work_location"
+                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                <option value="">Select location</option>
+                <option value="OFFICE">Office</option>
+                <option value="REMOTE">Remote</option>
+                <option value="HOLIDAY">Holiday</option>
+                <option value="SICK">Sick</option>
+                <option value="VACATION">Vacation</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="work_city" class="block text-sm font-medium text-gray-700">Work City</label>
+            <input type="text" id="work_city" name="work_city"
+                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+        </div>
+
+        <div>
+            <label for="day" class="block text-sm font-medium text-gray-700">Day of Week</label>
+            <select id="day" name="day"
+                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                <option value="">Select day</option>
+                <option value="MONDAY">Monday</option>
+                <option value="TUESDAY">Tuesday</option>
+                <option value="WEDNESDAY">Wednesday</option>
+                <option value="THURSDAY">Thursday</option>
+                <option value="FRIDAY">Friday</option>
+                <option value="SATURDAY">Saturday</option>
+                <option value="SUNDAY">Sunday</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="year_week" class="block text-sm font-medium text-gray-700">Year Week</label>
+            <input type="number" id="year_week" name="year_week"
+                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+        </div>
+
+        <div>
+            <label for="notes" class="block text-sm font-medium text-gray-700">Notes</label>
+            <textarea id="notes" name="notes" rows="3"
+                      class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></textarea>
+        </div>
+
+        <div>
+            <label for="blockers" class="block text-sm font-medium text-gray-700">Blockers</label>
+            <textarea id="blockers" name="blockers" rows="3"
+                      class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></textarea>
+        </div>
+
+        <div>
+            <label for="in_flight" class="block text-sm font-medium text-gray-700">In Flight</label>
+            <textarea id="in_flight" name="in_flight" rows="3"
+                      class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></textarea>
+        </div>
+
+        <div class="flex gap-4">
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                {{if .IsNew}}Add Attendance{{else}}Update Attendance{{end}}
+            </button>
+            <a href="/" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400">Cancel</a>
+        </div>
+    </form>
+</div>
+{{end}}
