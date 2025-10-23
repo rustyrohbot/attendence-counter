@@ -59,16 +59,6 @@ func (h *AttendanceHandler) List(w http.ResponseWriter, r *http.Request) {
 	tmpl.Execute(w, data)
 }
 
-func (h *AttendanceHandler) New(w http.ResponseWriter, r *http.Request) {
-	tmpl := template.Must(template.ParseFiles("internal/templates/layout.html", "internal/templates/attendance/form.html"))
-	data := struct {
-		IsNew bool
-	}{
-		IsNew: true,
-	}
-	tmpl.Execute(w, data)
-}
-
 func (h *AttendanceHandler) Create(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		http.Error(w, "Invalid form data", http.StatusBadRequest)
@@ -93,7 +83,7 @@ func (h *AttendanceHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = h.queries.CreateAttendance(r.Context(), db.CreateAttendanceParams{
+	createdAttendance, err := h.queries.CreateAttendance(r.Context(), db.CreateAttendanceParams{
 		Date:                 date,
 		WorkLocation:         sql.NullString{String: workLocation, Valid: workLocation != ""},
 		WorkCity:             sql.NullString{String: workCity, Valid: workCity != ""},
@@ -105,7 +95,23 @@ func (h *AttendanceHandler) Create(w http.ResponseWriter, r *http.Request) {
 		RollingInOfficeCount: sql.NullInt64{Int64: int64(rollingCount), Valid: true},
 	})
 	if err != nil {
-		http.Error(w, "Failed to update attendance", http.StatusInternalServerError)
+		http.Error(w, "Failed to create attendance", http.StatusInternalServerError)
+		return
+	}
+
+	// Check if this is an HTMX request
+	if r.Header.Get("HX-Request") == "true" {
+		// Format date for display
+		createdAttendance.Date = util.FormatDate(createdAttendance.Date)
+		// Return the new row
+		data := struct {
+			Attendance db.Attendance
+		}{
+			Attendance: createdAttendance,
+		}
+		w.WriteHeader(http.StatusCreated)
+		tmpl := template.Must(template.ParseFiles("internal/templates/attendance/row.html"))
+		tmpl.Execute(w, data)
 		return
 	}
 
@@ -144,6 +150,19 @@ func (h *AttendanceHandler) Edit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Check if this is an HTMX request for inline editing
+	if r.Header.Get("HX-Request") == "true" {
+		data := struct {
+			Attendance db.Attendance
+		}{
+			Attendance: attendance,
+		}
+		tmpl := template.Must(template.ParseFiles("internal/templates/attendance/edit_inline.html"))
+		tmpl.Execute(w, data)
+		return
+	}
+
+	// Regular page request
 	data := struct {
 		Attendance db.Attendance
 	}{
@@ -155,7 +174,7 @@ func (h *AttendanceHandler) Edit(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AttendanceHandler) Update(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
+	if r.Method != http.MethodPost && r.Method != http.MethodPut {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
@@ -190,7 +209,7 @@ func (h *AttendanceHandler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = h.queries.UpdateAttendance(r.Context(), db.UpdateAttendanceParams{
+	updatedAttendance, err := h.queries.UpdateAttendance(r.Context(), db.UpdateAttendanceParams{
 		Date:                 date,
 		WorkLocation:         sql.NullString{String: workLocation, Valid: workLocation != ""},
 		WorkCity:             sql.NullString{String: workCity, Valid: workCity != ""},
@@ -207,7 +226,60 @@ func (h *AttendanceHandler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Check if this is an HTMX request
+	if r.Header.Get("HX-Request") == "true" {
+		// Format date for display
+		updatedAttendance.Date = util.FormatDate(updatedAttendance.Date)
+		// Return the updated row
+		data := struct {
+			Attendance db.Attendance
+		}{
+			Attendance: updatedAttendance,
+		}
+		tmpl := template.Must(template.ParseFiles("internal/templates/attendance/row.html"))
+		tmpl.Execute(w, data)
+		return
+	}
+
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func (h *AttendanceHandler) GetRow(w http.ResponseWriter, r *http.Request) {
+	idStr := strings.TrimPrefix(r.URL.Path, "/attendance/")
+	idStr = strings.TrimSuffix(idStr, "/row")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		return
+	}
+
+	attendance, err := h.queries.GetAttendance(r.Context(), int64(id))
+	if err != nil {
+		http.Error(w, "Attendance record not found", http.StatusNotFound)
+		return
+	}
+
+	// Format date for display
+	attendance.Date = util.FormatDate(attendance.Date)
+
+	data := struct {
+		Attendance db.Attendance
+	}{
+		Attendance: attendance,
+	}
+
+	tmpl := template.Must(template.ParseFiles("internal/templates/attendance/row.html"))
+	tmpl.Execute(w, data)
+}
+
+func (h *AttendanceHandler) CancelNew(w http.ResponseWriter, r *http.Request) {
+	// Return empty string to remove the row
+	w.Write([]byte(""))
+}
+
+func (h *AttendanceHandler) NewInline(w http.ResponseWriter, r *http.Request) {
+	tmpl := template.Must(template.ParseFiles("internal/templates/attendance/new_inline.html"))
+	tmpl.Execute(w, nil)
 }
 
 func (h *AttendanceHandler) Import(w http.ResponseWriter, r *http.Request) {

@@ -2,7 +2,11 @@
 <div class="bg-white rounded-lg shadow-md p-6">
     <div class="flex justify-between items-center mb-4">
         <h2 class="text-2xl font-semibold">Attendance Records</h2>
-        <form method="post" action="/attendance/import" enctype="multipart/form-data" class="flex items-center gap-4">
+        <div class="flex items-center gap-4">
+            <button hx-get="/attendance/new-inline" hx-target="#attendance-table-body" hx-swap="afterbegin" hx-indicator="#loading-indicator" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                Add
+            </button>
+            <form hx-post="/attendance/import" hx-target="#import-results" hx-swap="innerHTML" enctype="multipart/form-data" class="flex items-center gap-4">
             <input type="file" name="csv" accept=".csv" required class="text-sm border border-gray-300 rounded px-3 py-2">
             <label class="flex items-center gap-2 text-sm font-medium">
                 <input type="checkbox" name="overwrite" value="true" class="rounded border-gray-300">
@@ -12,21 +16,15 @@
                 Import CSV
             </button>
         </form>
+        </div>
+        <div id="import-results"></div>
+        <div id="loading-indicator" class="htmx-indicator">
+            <div class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
+            Loading...
+        </div>
     </div>
 
-    {{if or .Imported .Skipped .Updated}}
-    <div class="mb-4 p-4 rounded-md {{if .Imported}}bg-green-50 text-green-800{{else}}bg-yellow-50 text-yellow-800{{end}}">
-        {{if .Imported}}
-            Successfully imported {{.Imported}} records.
-        {{end}}
-        {{if .Updated}}
-            Updated {{.Updated}} existing records.
-        {{end}}
-        {{if and .Skipped (not .Updated)}}
-            Skipped {{.Skipped}} records (dates already exist).
-        {{end}}
-    </div>
-    {{end}}
+
 
     {{if .Attendance}}
     <div class="overflow-x-auto">
@@ -45,9 +43,9 @@
                     <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-                {{range .Attendance}}
-                <tr class="{{if or (eq .Day.String "SATURDAY") (eq .Day.String "SUNDAY") (eq .WorkLocation.String "HOLIDAY")}}bg-gray-200 opacity-60{{end}}">
+             <tbody id="attendance-table-body" class="bg-white divide-y divide-gray-200">
+                 {{range .Attendance}}
+                 <tr class="{{if or (eq .Day.String "SATURDAY") (eq .Day.String "SUNDAY") (eq .WorkLocation.String "HOLIDAY")}}bg-gray-200 opacity-60{{end}}">
                     <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{{.Date}}</td>
                     <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{{.WorkLocation.String}}</td>
                     <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{{.WorkCity.String}}</td>
@@ -58,11 +56,8 @@
                     <td class="px-4 py-2 text-sm text-gray-900">{{.InFlight.String}}</td>
                     <td class="px-4 py-2 whitespace-nowrap text-sm {{if lt .RollingInOfficeCount.Int64 20}}bg-red-100 text-red-900{{else}}text-gray-900{{end}}">{{.RollingInOfficeCount.Int64}}</td>
                     <td class="px-4 py-2 whitespace-nowrap text-sm font-medium">
-                        <a href="/attendance/{{.ID}}/edit" class="text-blue-600 hover:text-blue-800 mr-4">Edit</a>
-                        <form method="post" action="/attendance/{{.ID}}" class="inline" onsubmit="return confirm('Are you sure you want to delete this record?')">
-                            <input type="hidden" name="_method" value="DELETE">
-                            <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
-                        </form>
+                        <button hx-get="/attendance/{{.ID}}/edit" hx-target="closest tr" hx-swap="outerHTML" class="text-blue-600 hover:text-blue-800 mr-4">Edit</button>
+                        <button hx-delete="/attendance/{{.ID}}" hx-target="closest tr" hx-swap="outerHTML" hx-confirm="Are you sure you want to delete this record?" class="text-red-600 hover:text-red-900">Delete</button>
                     </td>
                 </tr>
                 {{end}}

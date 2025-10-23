@@ -1,0 +1,49 @@
+<tr>
+    <form hx-put="/attendance/{{.Attendance.ID}}" hx-target="closest tr" hx-swap="outerHTML">
+        <td class="px-4 py-2 whitespace-nowrap">
+            <input type="date" name="date" value="{{.Attendance.Date}}" required class="w-full px-2 py-1 border border-gray-300 rounded text-sm">
+        </td>
+        <td class="px-4 py-2 whitespace-nowrap">
+            <select name="work_location" class="w-full px-2 py-1 border border-gray-300 rounded text-sm">
+                <option value="">Select location</option>
+                <option value="OFFICE" {{if eq .Attendance.WorkLocation.String "OFFICE"}}selected{{end}}>Office</option>
+                <option value="REMOTE" {{if eq .Attendance.WorkLocation.String "REMOTE"}}selected{{end}}>Remote</option>
+                <option value="HOLIDAY" {{if eq .Attendance.WorkLocation.String "HOLIDAY"}}selected{{end}}>Holiday</option>
+                <option value="SICK" {{if eq .Attendance.WorkLocation.String "SICK"}}selected{{end}}>Sick</option>
+                <option value="VACATION" {{if eq .Attendance.WorkLocation.String "VACATION"}}selected{{end}}>Vacation</option>
+            </select>
+        </td>
+        <td class="px-4 py-2 whitespace-nowrap">
+            <input type="text" name="work_city" value="{{.Attendance.WorkCity.String}}" class="w-full px-2 py-1 border border-gray-300 rounded text-sm">
+        </td>
+        <td class="px-4 py-2 whitespace-nowrap">
+            <select name="day" class="w-full px-2 py-1 border border-gray-300 rounded text-sm">
+                <option value="">Select day</option>
+                <option value="MONDAY" {{if eq .Attendance.Day.String "MONDAY"}}selected{{end}}>Monday</option>
+                <option value="TUESDAY" {{if eq .Attendance.Day.String "TUESDAY"}}selected{{end}}>Tuesday</option>
+                <option value="WEDNESDAY" {{if eq .Attendance.Day.String "WEDNESDAY"}}selected{{end}}>Wednesday</option>
+                <option value="THURSDAY" {{if eq .Attendance.Day.String "THURSDAY"}}selected{{end}}>Thursday</option>
+                <option value="FRIDAY" {{if eq .Attendance.Day.String "FRIDAY"}}selected{{end}}>Friday</option>
+                <option value="SATURDAY" {{if eq .Attendance.Day.String "SATURDAY"}}selected{{end}}>Saturday</option>
+                <option value="SUNDAY" {{if eq .Attendance.Day.String "SUNDAY"}}selected{{end}}>Sunday</option>
+            </select>
+        </td>
+        <td class="px-4 py-2 whitespace-nowrap">
+            <input type="number" name="year_week" value="{{.Attendance.YearWeek.Int64}}" class="w-full px-2 py-1 border border-gray-300 rounded text-sm">
+        </td>
+        <td class="px-4 py-2">
+            <textarea name="notes" rows="2" class="w-full px-2 py-1 border border-gray-300 rounded text-sm">{{.Attendance.Notes.String}}</textarea>
+        </td>
+        <td class="px-4 py-2">
+            <textarea name="blockers" rows="2" class="w-full px-2 py-1 border border-gray-300 rounded text-sm">{{.Attendance.Blockers.String}}</textarea>
+        </td>
+        <td class="px-4 py-2">
+            <textarea name="in_flight" rows="2" class="w-full px-2 py-1 border border-gray-300 rounded text-sm">{{.Attendance.InFlight.String}}</textarea>
+        </td>
+        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{{.Attendance.RollingInOfficeCount.Int64}}</td>
+        <td class="px-4 py-2 whitespace-nowrap text-sm font-medium">
+            <button type="submit" hx-indicator="#loading-indicator" class="text-green-600 hover:text-green-800 mr-2">Save</button>
+            <button hx-get="/attendance/{{.Attendance.ID}}/row" hx-target="closest tr" hx-swap="outerHTML" class="text-gray-600 hover:text-gray-800">Cancel</button>
+        </td>
+    </form>
+</tr>

@@ -32,7 +32,7 @@ func main() {
 
 	// Attendance routes
 	mux.HandleFunc("/", attendanceHandler.List)
-	mux.HandleFunc("/attendance/new", attendanceHandler.New)
+	mux.HandleFunc("/attendance/new-inline", attendanceHandler.NewInline)
 	mux.HandleFunc("/attendance/import", attendanceHandler.Import)
 	mux.HandleFunc("/attendance", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
@@ -44,7 +44,13 @@ func main() {
 	mux.HandleFunc("/attendance/", func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasSuffix(r.URL.Path, "/edit") {
 			attendanceHandler.Edit(w, r)
+		} else if strings.HasSuffix(r.URL.Path, "/row") {
+			attendanceHandler.GetRow(w, r)
+		} else if strings.HasSuffix(r.URL.Path, "/cancel-new") {
+			attendanceHandler.CancelNew(w, r)
 		} else if r.Method == http.MethodPost {
+			attendanceHandler.Update(w, r)
+		} else if r.Method == http.MethodPut {
 			attendanceHandler.Update(w, r)
 		} else if r.Method == http.MethodDelete {
 			attendanceHandler.Delete(w, r)

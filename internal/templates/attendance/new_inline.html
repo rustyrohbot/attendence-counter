@@ -1,0 +1,49 @@
+<tr>
+    <form hx-post="/attendance" hx-target="closest tr" hx-swap="outerHTML" hx-on:htmx:after-request="if (event.detail.xhr.status === 201) { htmx.trigger('#attendance-table tbody', 'refresh'); }">
+        <td class="px-4 py-2 whitespace-nowrap">
+            <input type="date" name="date" required class="w-full px-2 py-1 border border-gray-300 rounded text-sm">
+        </td>
+        <td class="px-4 py-2 whitespace-nowrap">
+            <select name="work_location" class="w-full px-2 py-1 border border-gray-300 rounded text-sm">
+                <option value="">Select location</option>
+                <option value="OFFICE">Office</option>
+                <option value="REMOTE">Remote</option>
+                <option value="HOLIDAY">Holiday</option>
+                <option value="SICK">Sick</option>
+                <option value="VACATION">Vacation</option>
+            </select>
+        </td>
+        <td class="px-4 py-2 whitespace-nowrap">
+            <input type="text" name="work_city" class="w-full px-2 py-1 border border-gray-300 rounded text-sm">
+        </td>
+        <td class="px-4 py-2 whitespace-nowrap">
+            <select name="day" class="w-full px-2 py-1 border border-gray-300 rounded text-sm">
+                <option value="">Select day</option>
+                <option value="MONDAY">Monday</option>
+                <option value="TUESDAY">Tuesday</option>
+                <option value="WEDNESDAY">Wednesday</option>
+                <option value="THURSDAY">Thursday</option>
+                <option value="FRIDAY">Friday</option>
+                <option value="SATURDAY">Saturday</option>
+                <option value="SUNDAY">Sunday</option>
+            </select>
+        </td>
+        <td class="px-4 py-2 whitespace-nowrap">
+            <input type="number" name="year_week" class="w-full px-2 py-1 border border-gray-300 rounded text-sm">
+        </td>
+        <td class="px-4 py-2">
+            <textarea name="notes" rows="2" class="w-full px-2 py-1 border border-gray-300 rounded text-sm"></textarea>
+        </td>
+        <td class="px-4 py-2">
+            <textarea name="blockers" rows="2" class="w-full px-2 py-1 border border-gray-300 rounded text-sm"></textarea>
+        </td>
+        <td class="px-4 py-2">
+            <textarea name="in_flight" rows="2" class="w-full px-2 py-1 border border-gray-300 rounded text-sm"></textarea>
+        </td>
+        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">-</td>
+        <td class="px-4 py-2 whitespace-nowrap text-sm font-medium">
+            <button type="submit" hx-indicator="#loading-indicator" class="text-green-600 hover:text-green-800 mr-2">Save</button>
+            <button hx-get="/attendance/cancel-new" hx-target="closest tr" hx-swap="outerHTML" class="text-gray-600 hover:text-gray-800">Cancel</button>
+        </td>
+    </form>
+</tr>
